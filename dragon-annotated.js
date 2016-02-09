@@ -2,7 +2,7 @@
 var grab=startX=startY=oldTop=oldLeft=0;
 
 // When you click, prevent the default behaviour for that event
-document.addEventListener('click',function(e){e.preventDefault()});
+document.addEventListener('click',function(e){e.preventDefault()},true);
 
 // On mousedown or touchstart, run the pick() function
 document.addEventListener('mousedown',pick);
@@ -71,18 +71,24 @@ function release(e){
 }
 
 // On mouseover, run the over() function
-document.addEventListener('mouseover', over);
-// On mouseover, run the out() function
-document.addEventListener('mouseout', out);
+document.addEventListener('mouseover',over);
 
 // This is the over() function
-function over(event) {
-  // Add a red border to show what container your hovering on
-  event.target.style.border = '1px solid red';
+function over(e){
+
+// Set the cursor to 'move' wihle hovering an element you can reposition
+  e.target.style.cursor='move'
+
+// Add a green box-shadow to show what container your hovering on
+  e.target.style.boxShadow='inset lime 0 0 1px, lime 0 0 1px'
 }
 
+// On mouseover, run the out() function
+document.addEventListener('mouseout',out);
+
 // This is the out() function
-function out(event) {
-  // Remove red border
-  event.target.style.border = '';
+function out(e){
+
+  // Remove the move cursor and green box-shadow
+  e.target.style.cursor=e.target.style.boxShadow=''
 }
