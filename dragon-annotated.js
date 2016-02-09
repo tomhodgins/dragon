@@ -69,3 +69,20 @@ document.addEventListener('touchend',release);
 function release(e){
   grab='';
 }
+
+// On mouseover, run the over() function
+document.addEventListener('mouseover', over);
+// On mouseover, run the out() function
+document.addEventListener('mouseout', out);
+
+// This is the over() function
+function over(event) {
+  // Add a red border to show what container your hovering on
+  event.target.style.border = '1px solid red';
+}
+
+// This is the out() function
+function out(event) {
+  // Remove red border
+  event.target.style.border = '';
+}
