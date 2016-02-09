@@ -17,7 +17,7 @@ function pick(e){
 // If the element being clicked/tapped isn't the body or HTML element, do the following
   if (e.target!==document.documentElement && e.target!==document.body){
 
-// set 'grab' to the time right now
+// Set 'grab' to the time right now
     grab=Date.now();
 
 // Add a 'data-drag' attribute to the picked element and assign the time they started grabbing it
@@ -65,7 +65,7 @@ function drag(e){
 document.addEventListener('mouseup',release);
 document.addEventListener('touchend',release);
 
-// the release function empties grab, forgetting which element has been picked.
+// The release function empties grab, forgetting which element has been picked.
 function release(e){
   grab='';
 }
