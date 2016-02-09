@@ -2,7 +2,7 @@
 
 `dragon.js` is a bookmarklet that lets you drag any element on a website using a mouse or touchscreen. The goal is to speed up in-browser design critiques and brainstorming new layout ideas.
 
-<iframe width="420" height="315" src="https://www.youtube.com/embed/ytIZbXnNOMM" frameborder="0" allowfullscreen></iframe>
+[![](http://i.imgur.com/VubC6xd.png)](https://www.youtube.com/embed/ytIZbXnNOMM)
 
 ## How to use
 
