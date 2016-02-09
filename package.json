@@ -1,0 +1,21 @@
+{
+  "name": "dragon",
+  "version": "1.0.0",
+  "description": "`dragon.js` is a bookmarklet that lets you drag any element on a website using a mouse or touchscreen. The goal is to speed up in-browser design critiques and brainstorming new layout ideas.",
+  "main": "dragon.js",
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^1.5.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tomhodgins/dragon/issues"
+  },
+  "homepage": "https://github.com/tomhodgins/dragon#readme"
+}
