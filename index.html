@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html data-theme=dark>
+<head>
+  <meta charset=utf-8>
+  <meta name=viewport content="width=device-width, initial-scale=1">
+  <title>Dragon.js</title>
+  <link href=http://fonts.googleapis.com/css?family=Fira+Sans:300,400,500,700,300italic,400italic,500italic,700italic rel=stylesheet>
+  <link href=http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,200italic,300italic,400italic,600italic,700italic,900italic rel=stylesheet>
+  <link href="http://fonts.googleapis.com/css?family=PT+Serif:400,700,400italic,700italic" rel=stylesheet type=text/css>
+  <link href=css/basic.css rel=stylesheet>
+  <link href=css/data-buttons.css rel=stylesheet>
+  <style>
+    aside {
+      color: #652;
+      font-family: "PT Serif", Cambria, "Hoefler Text", Utopia, "Liberation Serif", "Nimbus Roman No9 L Regular", Times, "Times New Roman", serif;
+      background: ivory;
+      padding: 2em;
+      margin: 2em auto;
+      border: 1px solid tan;
+      box-shadow: inset tan 0 0 100px, rgba(0,0,0,.15) 0 0 15px;
+    }
+    aside:after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+    img {
+      pointer-events: all !important;
+    }
+    [data-button] {
+      width: auto !important;
+    }
+    hr {
+      margin: 2em auto;
+      background: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <h1>Click to Drag</h1>
+  <h2>dragging elements using mouse &amp; touchscreen</h2>
+  <p>This is an experiment to see if dragging items on the page could be helpful for in-browser design. Simply click or tap on any element to move it and its children.</p>
+  <p>If you'd like to test this on mobile, simple create a new bookmark for any page and replace the URL with 'javascript:' followed by the JavaScript in the following file: <a href=http://staticresource.com/dragon.js>http://staticresource.com/dragon.js</a></p>
+  <p>Your Bookmark should look like this:</p>
+  <p><strong>Name:</strong> Dragon<br><strong>URL:</strong> <code>javascript:var grab=startX=startY="",oldT…</code> (the rest of dragon.js here)</p>
+  <p>Now load any site you want to rearrange, then tap on your bookmark and you should be able to tap and drag the elements around!</p>
+  <hr>
+  <aside>
+    <img src=http://staticresource.com/user.png class=float-left>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+  </aside>
+  <blockquote>
+    <p><q>This is a blockquote</q></p>
+    <footer>First Last</footer>
+  </blockquote>
+  <h2>List Test</h2>
+  <ul>
+    <li>list item
+    <li>list item with <a href=#>a link</a>
+    <li>list item
+  </ul>
+  <ol>
+    <li>list item
+    <li>list item with <a href=#>a link</a>
+    <li>list item
+  </ol>
+  <h4>Button Test</h4>
+  <input type=button data-button value="default button">
+  <input type=button data-button="blue" value="blue button">
+  <input type=button data-button="green" value="green button">
+  <input type=button data-button="red" value="red button">
+  <input type=button data-button="grey" value="grey button">
+  <input type=button data-button="outline" value="outline button">
+  <br>
+  <input type=button data-button disabled value="default button">
+  <input type=button data-button="blue" class="disabled" value="blue button">
+  <input type=button data-button="green" hidden value="green button">
+  <input type=button data-button="red" disabled value="red button">
+  <input type=button data-button="grey" class="disabled" value="grey button">
+  <input type=button data-button="outline" hidden value="outline button">
+  <pre>&lt;script>alert('I LOVE ALERTS!')&lt;/script></pre>
+  <h1>This is an &lt;H1&gt; Headline</h1>
+  <hr>
+  <h2>This is an &lt;H2&gt; Headline</h2>
+  <h3>This is an &lt;H3&gt; Headline</h3>
+  <h4>This is an &lt;H4&gt; Headline</h4>
+  <h5>This is an &lt;H5&gt; Headline</h5>
+  <h6>This is an &lt;H6&gt; Headline</h6>
+  <p><img class=float-left style=width:100px src=http://staticresource.com/prestonIcon.jpg>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum sunt in culpa qui officia deserunt mollit anim id est laborum. </p>
+  <p><img class=float-right style=width:100px src=http://staticresource.com/prestonIcon.jpg>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+  <p><img class=float-none src=http://staticresource.com/prestonIcon.jpg></p>
+  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+  <script>
+    var grab=startX=startY=oldTop=oldLeft=0;
+    document.addEventListener('click',function(e){e.preventDefault()});
+    document.addEventListener('mousedown',pick);
+    document.addEventListener('touchstart',pick);
+    function pick(e){
+      e.preventDefault();
+      if (e.target!==document.documentElement && e.target!==document.body){
+        grab=Date.now();
+        e.target.setAttribute('data-drag',grab);
+        e.target.style.position='relative';
+        oldTop=e.target.style.top.split('px')[0]||0;
+        oldLeft=e.target.style.left.split('px')[0]||0;
+      }
+      startX=e.clientX||e.touches[0].clientX;
+      startY=e.clientY||e.touches[0].clientY;
+    }
+    document.addEventListener('mousemove',drag);
+    document.addEventListener('touchmove',drag);
+    function drag(e){
+      if (grab!==''){
+        var element=document.querySelector('[data-drag="'+grab+'"]');
+        element.style.top=parseInt(oldTop)+parseInt((e.clientY||e.touches[0].clientY)-startY)+'px';
+        element.style.left=parseInt(oldLeft)+parseInt((e.clientX||e.touches[0].clientX)-startX)+'px';
+      }
+    }
+    document.addEventListener('mouseup',release);
+    document.addEventListener('touchend',release);
+    function release(e){
+      grab='';
+    }
+  </script>
+</body>
+</html>
