@@ -1,5 +1,5 @@
 
-(function (root) {
+(function (win) {
 
 	var Dragon = function (doc) {
 		var self = this;
@@ -387,11 +387,16 @@
 
 
 
-	// Startup process
-	var dragonInstance = new Dragon(root.document);
-	dragonInstance.init().start();
+	// Has already be run once, use this chance to toggle the behavior
+	var exportName = '___d';
+	if (win[exportName] && win[exportName] instanceof Dragon) {
+		win[exportName].toggle();
 
-	// Export for debug
-	// window.d = dragonInstance;
+	// Set up a new instance and export to window scope
+	} else {
+		var dragonInstance = new Dragon(win.document);
+		dragonInstance.start();
+		win[exportName] = dragonInstance;
+	}
 
 })(window);
