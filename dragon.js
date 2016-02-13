@@ -30,9 +30,6 @@
 
 		self.getCss = function () {
 			return '[' + self.baseAttributeName + '] {' +
-					'transition-property: outline-color !important;' +
-					'transition-duration: 150ms !important;' +
-					'transition-delay: 0ms !important;' +
 					'position: relative !important;' +
 				'}' +
 				'* {' +
