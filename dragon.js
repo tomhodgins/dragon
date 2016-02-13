@@ -1,8 +1,9 @@
 
 (function (root) {
 
-	var Dragon = function () {
+	var Dragon = function (doc) {
 		var self = this;
+		self.doc = doc;
 
 		// Create some variables we can use later
 		var grab = startX = startY = oldTop = oldLeft = 0;
@@ -94,28 +95,28 @@
 
 
 		// Set up all bindings
-		self.bind = function (doc) {
+		self.bind = function () {
 
 			// Disallow clicks
-			doc.addEventListener('click', self.preventDefaultCallback, true);
+			self.doc.addEventListener('click', self.preventDefaultCallback, true);
 
 			// On mousedown or touchstart, run the pick() function
-			doc.addEventListener('mousedown', self.pick);
-			doc.addEventListener('touchstart', self.pick);
+			self.doc.addEventListener('mousedown', self.pick);
+			self.doc.addEventListener('touchstart', self.pick);
 
 			// All the time you move the mouse or drag your finger, run the function drag()
-			doc.addEventListener('mousemove', self.drag);
-			doc.addEventListener('touchmove', self.drag);
+			self.doc.addEventListener('mousemove', self.drag);
+			self.doc.addEventListener('touchmove', self.drag);
 
 			// On mouseup or touchend, run the grabRelease() function
-			doc.addEventListener('mouseup', self.grabRelease);
-			doc.addEventListener('touchend', self.grabRelease);
+			self.doc.addEventListener('mouseup', self.grabRelease);
+			self.doc.addEventListener('touchend', self.grabRelease);
 
 			// On mouseover, run the mouseOver() function
-			doc.addEventListener('mouseover', self.mouseOver);
+			self.doc.addEventListener('mouseover', self.mouseOver);
 
 			// On mouseover, run the out() function
-			doc.addEventListener('mouseout', self.mouseOut);
+			self.doc.addEventListener('mouseout', self.mouseOut);
 
 			return self;
 
@@ -126,7 +127,7 @@
 
 
 	// Startup process
-	var dragonInstance = new Dragon();
-	dragonInstance.bind(root.document);
+	var dragonInstance = new Dragon(root.document);
+	dragonInstance.bind();
 
 })(window);
