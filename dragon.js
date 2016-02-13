@@ -29,7 +29,7 @@
 		self.blockDragDirectionOf = false;
 		self.modifierKeyPressed = false;
 
-		self.grab = 0;
+		self.grab = '';
 		self.oldTop = 0;
 		self.oldLeft = 0;
 		self.startX = 0;
@@ -100,12 +100,16 @@
 
 		// This is the mouseOver() function
 		self.mouseOver = function (event) {
-			event.target.setAttribute(self.targetAttributeName, self.targetAttributeName);
+			if (!self.grab.length) {
+				event.target.setAttribute(self.targetAttributeName, self.targetAttributeName);
+			}
 		};
 
 		// This is the mouseOut() function
 		self.mouseOut = function (event) {
-			event.target.removeAttribute(self.targetAttributeName);
+			if (!self.grab.length) {
+				event.target.removeAttribute(self.targetAttributeName);
+			}
 		};
 
 
@@ -118,7 +122,7 @@
 			if (event.target !== self.doc.documentElement && event.target !== self.doc.body) {
 
 				// Set 'grab' to the time right now
-				self.grab = Date.now();
+				self.grab = '' + Date.now();
 
 				// Set special attribute for the picked-up element
 				event.target.setAttribute(self.draggingAttributeName, self.draggingAttributeName);
@@ -139,9 +143,9 @@
 		};
 
 		// This is run for every cursor movement or touch screen drag
-		// If grab isn't empty, there's currently an object being dragged, do this
+		// If grab is not set, there's currently an object being dragged, do this
 		self.drag = function (event) {
-			if (self.grab !== '') {
+			if (self.grab.length) {
 
 				// Let's find the element on the page whose Dragon value matches the value of grab right now
 				var element = self.doc.querySelector('[' + self.baseAttributeName + '="' + self.grab + '"]');
