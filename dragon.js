@@ -52,13 +52,11 @@
 
 
 		// Generate stylesheet node to house custom styles
-		self.createStyleNode = function () {
+		self.createStyleNode = function (css) {
 
 			// Find head
 			var head = self.doc.head || self.doc.getElementsByTagName('head')[0];
 			if (head) {
-
-				var css = self.getCss();
 				var styleNode = self.doc.createElement('style');
 
 				// Prepare style tag
@@ -259,7 +257,7 @@
 
 		// Bind all
 		self.start = function () {
-			self.createStyleNode();
+			self.createStyleNode(self.getCss());
 			self.bindListeners();
 		};
 
