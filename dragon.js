@@ -45,13 +45,15 @@
 		};
 
 		self.getActiveCss = function () {
-			return '[' + self.targetAttributeName + '] {' +
+			return '[' + self.baseAttributeName + ']:hover,' +
+				'[' + self.targetAttributeName + '] {' +
 					'cursor: -webkit-grab !important;' +
 					'cursor: -moz-grab !important;' +
 					'cursor: grab !important;' +
 					'outline: 2px solid ' + self.outlineColor + ' !important;' +
 				'}' +
-				'[' + self.draggingAttributeName + '] {' +
+				'[' + self.draggingAttributeName + '],' +
+				'[' + self.baseAttributeName + '][' + self.draggingAttributeName + '] {' +
 					'cursor: -webkit-grabbing !important;' +
 					'cursor: -moz-grabbing !important;' +
 					'cursor: grabbing !important;' +
@@ -204,7 +206,13 @@
 			self.oldTop = 0;
 			self.oldLeft = 0;
 
-			event.target.removeAttribute(self.draggingAttributeName);
+			// Remove target marking from element
+			var elementsWithDraggingAttribute = self.doc.querySelector('[' + self.draggingAttributeName + ']');
+			if (elementsWithDraggingAttribute) {
+				elementsWithDraggingAttribute.removeAttribute(self.targetAttributeName);
+				elementsWithDraggingAttribute.removeAttribute(self.draggingAttributeName);
+			}
+
 		};
 
 
@@ -288,16 +296,16 @@
 
 		// Tear up main bindings
 		self.removeBaseAttributes = function () {
-			var baseAttributes = self.doc.querySelector('[' + self.baseAttributeName + ']');
-			if (baseAttributes) {
-				baseAttributes.removeAttribute(self.baseAttributeName);
+			var elementWithBaseAttributes = self.doc.querySelector('[' + self.baseAttributeName + ']');
+			if (elementWithBaseAttributes) {
+				elementWithBaseAttributes.removeAttribute(self.baseAttributeName);
 			}
 		};
 
 		self.removeActiveAttributes = function () {
-			var draggingAttributes = self.doc.querySelector('[' + self.draggingAttributeName + ']');
-			if (draggingAttributes) {
-				draggingAttributes.removeAttribute(self.draggingAttributeName);
+			var elementsWithDraggingAttribute = self.doc.querySelector('[' + self.draggingAttributeName + ']');
+			if (elementsWithDraggingAttribute) {
+				elementsWithDraggingAttribute.removeAttribute(self.draggingAttributeName);
 			}
 		};
 
