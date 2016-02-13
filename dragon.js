@@ -95,7 +95,7 @@
 
 
 		// Set up all bindings
-		self.bind = function () {
+		self.bindMouse = function () {
 
 			// Disallow clicks
 			self.doc.addEventListener('click', self.preventDefaultCallback, true);
@@ -122,12 +122,62 @@
 
 		};
 
+
+
+		// Press escape to cancel
+		self.bindCancelButton = function () {
+
+			var callback = function (event) {
+				event = event || window.event;
+				var code = event.keyCode || event.which;
+
+				// Check for escape key
+				if (code == 27) {
+					self.tearDown();
+				}
+
+			};
+
+			self.doc.addEventListener('keydown', callback);
+
+		};
+
+
+
+		// Tear up main bindings
+		self.removeEventListeners = function () {
+			self.doc.removeEventListener('click', self.preventDefaultCallback, true);
+			self.doc.removeEventListener('mousedown', self.pick);
+			self.doc.removeEventListener('touchstart', self.pick);
+			self.doc.removeEventListener('mousemove', self.drag);
+			self.doc.removeEventListener('touchmove', self.drag);
+			self.doc.removeEventListener('mouseup', self.grabRelease);
+			self.doc.removeEventListener('touchend', self.grabRelease);
+			self.doc.removeEventListener('mouseover', self.mouseOver);
+			self.doc.removeEventListener('mouseout', self.mouseOut);
+		};
+
+
+
+		// Bind all
+		self.start = function () {
+			self.bindMouse();
+			self.bindCancelButton();
+		};
+
+		// Return to normal mode
+		self.tearDown = function () {
+			self.removeEventListeners();
+		};
+
+
+
 	};
 
 
 
 	// Startup process
 	var dragonInstance = new Dragon(root.document);
-	dragonInstance.bind();
+	dragonInstance.start();
 
 })(window);
