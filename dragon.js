@@ -98,10 +98,14 @@
 
 
 
+		self.isLegalTarget = function (target) {
+			return target !== self.doc.documentElement && target !== self.doc.body;
+		}
+
 		// This is the mouseOver() function
 		self.mouseOver = function (event) {
 			if (!self.grab.length) {
-				if (event.target !== self.doc.documentElement && event.target !== self.doc.body) {
+				if (self.isLegalTarget(event.target)) {
 					event.target.setAttribute(self.targetAttributeName, self.targetAttributeName);
 				}
 			}
@@ -110,7 +114,7 @@
 		// This is the mouseOut() function
 		self.mouseOut = function (event) {
 			if (!self.grab.length) {
-				if (event.target !== self.doc.documentElement && event.target !== self.doc.body) {
+				if (self.isLegalTarget(event.target)) {
 					event.target.removeAttribute(self.targetAttributeName);
 				}
 			}
@@ -123,7 +127,7 @@
 			event.preventDefault();
 
 			// If the element being clicked/tapped isn't the body or HTML element, do the following
-			if (event.target !== self.doc.documentElement && event.target !== self.doc.body) {
+			if (self.isLegalTarget(event.target)) {
 
 				// Set 'grab' to the time right now
 				self.grab = '' + Date.now();
