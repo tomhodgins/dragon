@@ -101,14 +101,18 @@
 		// This is the mouseOver() function
 		self.mouseOver = function (event) {
 			if (!self.grab.length) {
-				event.target.setAttribute(self.targetAttributeName, self.targetAttributeName);
+				if (event.target !== self.doc.documentElement && event.target !== self.doc.body) {
+					event.target.setAttribute(self.targetAttributeName, self.targetAttributeName);
+				}
 			}
 		};
 
 		// This is the mouseOut() function
 		self.mouseOut = function (event) {
 			if (!self.grab.length) {
-				event.target.removeAttribute(self.targetAttributeName);
+				if (event.target !== self.doc.documentElement && event.target !== self.doc.body) {
+					event.target.removeAttribute(self.targetAttributeName);
+				}
 			}
 		};
 
@@ -373,10 +377,9 @@
 
 	// Startup process
 	var dragonInstance = new Dragon(root.document);
-	dragonInstance.init();
-	dragonInstance.start();
+	dragonInstance.init().start();
 
 	// Export for debug
-	window.d = dragonInstance;
+	// window.d = dragonInstance;
 
 })(window);
