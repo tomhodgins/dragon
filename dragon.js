@@ -389,7 +389,7 @@
 
 	// Has already be run once, use this chance to toggle the behavior
 	var exportName = '___d';
-	if (win[exportName] && win[exportName] instanceof Dragon) {
+	if (win[exportName] && win[exportName].toggle && typeof win[exportName].toggle == 'function') {
 		win[exportName].toggle();
 
 	// Set up a new instance and export to window scope
