@@ -45,12 +45,15 @@
 
 				// Let's find the element on the page whose data-drag="" value matches the value of grab right now
 				var element = document.querySelector('[data-drag="' + grab + '"]');
+				if (element && element.style) {
 
-				// And to that element, let the new value of `top: ;` be equal to the old top position, plus the difference between the original top position and the current cursor position
-				element.style.top = parseInt(oldTop) + parseInt((event.clientY||event.touches[0].clientY) - startY) + 'px';
+					// And to that element, let the new value of `top: ;` be equal to the old top position, plus the difference between the original top position and the current cursor position
+					element.style.top = parseInt(oldTop) + parseInt((event.clientY||event.touches[0].clientY) - startY) + 'px';
 
-				// And let the new value of `left: ;` be equal to the old left position, plus the difference between the original left position and the current cursor position
-				element.style.left = parseInt(oldLeft) + parseInt((event.clientX||event.touches[0].clientX) - startX) + 'px';
+					// And let the new value of `left: ;` be equal to the old left position, plus the difference between the original left position and the current cursor position
+					element.style.left = parseInt(oldLeft) + parseInt((event.clientX||event.touches[0].clientX) - startX) + 'px';
+
+				}
 
 			}
 
@@ -85,6 +88,7 @@
 		// Generic prevent default behaviour for event callbacks
 		self.preventDefaultCallback = function (event) {
 			event.preventDefault();
+			return false;
 		};
 
 
@@ -114,7 +118,8 @@
 			doc.addEventListener('mouseout', self.mouseOut);
 
 			return self;
-		}
+
+		};
 
 	};
 
