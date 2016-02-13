@@ -3,56 +3,135 @@
 
 	var Dragon = function (doc) {
 		var self = this;
+
+
+
+		// Store document object as internal variable
 		self.doc = doc;
 
+		// Some configuration
+		self.outlineColor = 'rgba(0, 255, 0, 0.4)';
+		self.outlineHoverColor = 'rgba(0, 255, 0, 0.8)';
+
+		// HTML
+		self.prefix = 'dragon-' + (Math.random().toString(36).substr(2, 9)); // Random UID to prefix stuff with
+		self.styleNodeId = self.prefix + 'js-styles';
+		self.baseAttributeName = 'data-' + self.prefix + 'drag';
+		self.draggingAttributeName = 'data-' + self.prefix + 'dragging';
+
 		// Create some variables we can use later
-		var grab = startX = startY = oldTop = oldLeft = 0;
+		self.oldTop = 0;
+		self.oldLeft = 0;
+		self.startX = 0;
+		self.startY = 0;
+		self.grab = 0;
 
-		// This is the pick function
-		self.pick = function (event) {
 
-			// Prevent the default action
+
+		self.getCss = function () {
+			return '[' + self.baseAttributeName + '] {' +
+					'transition-property: outline-color !important;' +
+					'transition-duration: 150ms !important;' +
+					'transition-delay: 0ms !important;' +
+					'position: relative !important;' +
+				'}' +
+				'* {' +
+					'cursor: -webkit-grab !important;' +
+					'cursor: -moz-grab !important;' +
+					'cursor: grab !important;' +
+					'outline: 2px solid transparent !important;' +
+				'}' +
+				'*:hover {' +
+					'outline-color: ' + self.outlineColor + ' !important;' +
+				'}' +
+				'[' + self.draggingAttributeName + '] {' +
+					'outline-color: ' + self.outlineHoverColor + ' !important;' +
+				'}';
+		};
+
+
+
+		// Generate stylesheet node to house custom styles
+		self.createStyleNode = function () {
+
+			// Find head
+			var head = self.doc.head || self.doc.getElementsByTagName('head')[0];
+			if (head) {
+
+				var css = self.getCss();
+				var styleNode = self.doc.createElement('style');
+
+				// Prepare style tag
+				styleNode.type = 'text/css';
+				styleNode.id = self.styleNodeId;
+
+				// Insert CSS
+				if (styleNode.styleSheet) {
+					styleNode.styleSheet.cssText = css;
+				} else {
+					styleNode.appendChild(self.doc.createTextNode(css));
+				}
+
+				// Append put style tag to document
+				head.appendChild(styleNode);
+
+			}
+
+		};
+
+		self.removeStyleNode = function () {
+			var node = self.doc.querySelector('#' + self.styleNodeId);
+			node.parentNode.removeChild(node);
+		};
+
+
+
+		// This is run when the user selects an element for dragging
+		self.grabStart = function (event) {
 			event.preventDefault();
 
 			// If the element being clicked/tapped isn't the body or HTML element, do the following
-			if (event.target !== document.documentElement && event.target !== document.body) {
+			if (event.target !== self.doc.documentElement && event.target !== self.doc.body) {
 
 				// Set 'grab' to the time right now
-				grab = Date.now();
+				self.grab = Date.now();
 
-				// Add a 'data-drag' attribute to the picked element and assign the time they started grabbing it
-				event.target.setAttribute('data-drag', grab);
+				// Set special attribute for the picked-up element
+				event.target.setAttribute(self.draggingAttributeName, self.draggingAttributeName);
+
+				// Add a Dragon attribute to the picked element and assign the time they started grabbing it
+				event.target.setAttribute(self.baseAttributeName, self.grab);
 
 				// Add `position: relative;` to the picked element
-				event.target.style.position = 'relative';
+				// event.target.style.position = 'relative';
 
 				// Remember the original `top: ;` and `left: ;` values, or if they aren't set yet go with 0 instead
-				oldTop = event.target.style.top.split('px')[0] || 0;
-				oldLeft = event.target.style.left.split('px')[0] || 0;
+				self.oldTop = event.target.style.top.split('px')[0] || 0;
+				self.oldLeft = event.target.style.left.split('px')[0] || 0;
 
 			}
 
 			// Let's remember the start x and y coordinates of the cursor when starting a click or tap
-			startX = event.clientX||event.touches[0].clientX;
-			startY = event.clientY||event.touches[0].clientY;
+			self.startX = event.clientX || event.touches[0].clientX;
+			self.startY = event.clientY || event.touches[0].clientY;
 
 		}
 
-		// This is the drag function
+		// This is run for every cursor movement or touch screen drag
 		self.drag = function (event) {
 
 			// If grab isn't empty, there's currently an object being dragged, do this
-			if (grab !== '') {
+			if (self.grab !== '') {
 
-				// Let's find the element on the page whose data-drag="" value matches the value of grab right now
-				var element = document.querySelector('[data-drag="' + grab + '"]');
+				// Let's find the element on the page whose Dragon value matches the value of grab right now
+				var element = self.doc.querySelector('[' + self.baseAttributeName + '="' + self.grab + '"]');
 				if (element && element.style) {
 
-					// And to that element, let the new value of `top: ;` be equal to the old top position, plus the difference between the original top position and the current cursor position
-					element.style.top = parseInt(oldTop) + parseInt((event.clientY||event.touches[0].clientY) - startY) + 'px';
+					// Adjust the vertical position value based on the difference to last XY position of the cursor
+					element.style.top = parseInt(self.oldTop) + parseInt((event.clientY || event.touches[0].clientY) - self.startY) + 'px';
 
-					// And let the new value of `left: ;` be equal to the old left position, plus the difference between the original left position and the current cursor position
-					element.style.left = parseInt(oldLeft) + parseInt((event.clientX||event.touches[0].clientX) - startX) + 'px';
+					// Adjust the horizontal position value based on the difference to last XY position of the cursor
+					element.style.left = parseInt(self.oldLeft) + parseInt((event.clientX || event.touches[0].clientX) - self.startX) + 'px';
 
 				}
 
@@ -62,17 +141,18 @@
 
 		// The grabRelease function empties grab, forgetting which element has been picked.
 		self.grabRelease = function (event) {
-			grab = '';
+			self.grab = '';
+			event.target.removeAttribute(self.draggingAttributeName);
 		}
 
 		// This is the mouseOver() function
 		self.mouseOver = function (event) {
 
-			// Set the cursor to 'move' wihle hovering an element you can reposition
-			event.target.style.cursor = 'move';
+			// Set the cursor to 'move' while hovering an element you can reposition
+			// event.target.style.cursor = 'move';
 
 			// Add a green box-shadow to show what container your hovering on
-			event.target.style.boxShadow = 'inset lime 0 0 1px, lime 0 0 1px';
+			// event.target.style.boxShadow = 'inset lime 0 0 1px, lime 0 0 1px';
 
 		}
 
@@ -80,7 +160,7 @@
 		self.mouseOut = function (event) {
 
 			// Remove the move cursor and green box-shadow
-			event.target.style.cursor = event.target.style.boxShadow = '';
+			// event.target.style.cursor = event.target.style.boxShadow = '';
 
 		}
 
@@ -95,14 +175,14 @@
 
 
 		// Set up all bindings
-		self.bindMouse = function () {
+		self.bindListeners = function () {
 
 			// Disallow clicks
 			self.doc.addEventListener('click', self.preventDefaultCallback, true);
 
 			// On mousedown or touchstart, run the pick() function
-			self.doc.addEventListener('mousedown', self.pick);
-			self.doc.addEventListener('touchstart', self.pick);
+			self.doc.addEventListener('mousedown', self.grabStart);
+			self.doc.addEventListener('touchstart', self.grabStart);
 
 			// All the time you move the mouse or drag your finger, run the function drag()
 			self.doc.addEventListener('mousemove', self.drag);
@@ -118,6 +198,9 @@
 			// On mouseover, run the out() function
 			self.doc.addEventListener('mouseout', self.mouseOut);
 
+			// Listen for escape button
+			self.doc.addEventListener('keydown', self.cancelButtonCallback);
+
 			return self;
 
 		};
@@ -125,20 +208,34 @@
 
 
 		// Press escape to cancel
-		self.bindCancelButton = function () {
+		self.cancelButtonCallback = function (event) {
+			event = event || window.event;
+			var code = event.keyCode || event.which;
 
-			var callback = function (event) {
-				event = event || window.event;
-				var code = event.keyCode || event.which;
+			// Check for escape key
+			if (code == 27) {
 
-				// Check for escape key
-				if (code == 27) {
-					self.tearDown();
-				}
+				// Run the actual teardown logic
+				self.tearDown();
 
-			};
+			}
 
-			self.doc.addEventListener('keydown', callback);
+		};
+
+
+
+		// Tear up main bindings
+		self.removeCustomAttributes = function () {
+
+			var baseAttributes = self.doc.querySelector('[' + self.baseAttributeName + ']');
+			if (baseAttributes) {
+				baseAttributes.removeAttribute(self.baseAttributeName);
+			}
+
+			var draggingAttributes = self.doc.querySelector('[' + self.draggingAttributeName + ']');
+			if (draggingAttributes) {
+				draggingAttributes.removeAttribute(self.draggingAttributeName);
+			}
 
 		};
 
@@ -147,27 +244,30 @@
 		// Tear up main bindings
 		self.removeEventListeners = function () {
 			self.doc.removeEventListener('click', self.preventDefaultCallback, true);
-			self.doc.removeEventListener('mousedown', self.pick);
-			self.doc.removeEventListener('touchstart', self.pick);
+			self.doc.removeEventListener('mousedown', self.grabStart);
+			self.doc.removeEventListener('touchstart', self.grabStart);
 			self.doc.removeEventListener('mousemove', self.drag);
 			self.doc.removeEventListener('touchmove', self.drag);
 			self.doc.removeEventListener('mouseup', self.grabRelease);
 			self.doc.removeEventListener('touchend', self.grabRelease);
 			self.doc.removeEventListener('mouseover', self.mouseOver);
 			self.doc.removeEventListener('mouseout', self.mouseOut);
+			self.doc.removeEventListener('keydown', self.cancelButtonCallback);
 		};
 
 
 
 		// Bind all
 		self.start = function () {
-			self.bindMouse();
-			self.bindCancelButton();
+			self.createStyleNode();
+			self.bindListeners();
 		};
 
 		// Return to normal mode
 		self.tearDown = function () {
 			self.removeEventListeners();
+			self.removeCustomAttributes();
+			self.removeStyleNode();
 		};
 
 
@@ -179,5 +279,8 @@
 	// Startup process
 	var dragonInstance = new Dragon(root.document);
 	dragonInstance.start();
+
+	// Export for debug
+	window.d = dragonInstance;
 
 })(window);
