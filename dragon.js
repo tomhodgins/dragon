@@ -8,16 +8,21 @@
 
 		// Store document object as internal variable
 		self.doc = doc;
+		self.isInitialized = false;
+		self.isActive = false;
 
 		// Some configuration
+		self.toggleButtonKeyCode = 27; // Esc
 		self.outlineColor = 'rgba(0, 255, 0, 0.4)';
 		self.outlineHoverColor = 'rgba(0, 255, 0, 0.8)';
 
-		// HTML
+		// Name stuff for use in HTML
 		self.prefix = 'dragon-' + (Math.random().toString(36).substr(2, 9)); // Random UID to prefix stuff with
-		self.styleNodeId = self.prefix + 'js-styles';
-		self.baseAttributeName = 'data-' + self.prefix + 'drag';
-		self.draggingAttributeName = 'data-' + self.prefix + 'dragging';
+		self.baseStyleNodeId = self.prefix + '-' + 'js-base-styles';
+		self.activeStyleNodeId = self.prefix + '-' + 'js-active-styles';
+		self.baseAttributeName = 'data-' + self.prefix + '-' + 'touched';
+		self.targetAttributeName = 'data-' + self.prefix + '-' + 'target';
+		self.draggingAttributeName = 'data-' + self.prefix + '-' + 'dragging';
 
 		// Create some variables we can use later
 		self.oldTop = 0;
@@ -28,20 +33,22 @@
 
 
 
-		self.getCss = function () {
+		self.getBaseCss = function () {
 			return '[' + self.baseAttributeName + '] {' +
 					'position: relative !important;' +
-				'}' +
-				'* {' +
+				'}';
+		};
+		self.getActiveCss = function () {
+			return '[' + self.targetAttributeName + '] {' +
 					'cursor: -webkit-grab !important;' +
 					'cursor: -moz-grab !important;' +
 					'cursor: grab !important;' +
-					'outline: 2px solid transparent !important;' +
-				'}' +
-				'*:hover {' +
-					'outline-color: ' + self.outlineColor + ' !important;' +
+					'outline: 2px solid ' + self.outlineColor + ' !important;' +
 				'}' +
 				'[' + self.draggingAttributeName + '] {' +
+					'cursor: -webkit-grabbing !important;' +
+					'cursor: -moz-grabbing !important;' +
+					'cursor: grabbing !important;' +
 					'outline-color: ' + self.outlineHoverColor + ' !important;' +
 				'}';
 		};
@@ -49,7 +56,7 @@
 
 
 		// Generate stylesheet node to house custom styles
-		self.createStyleNode = function (css) {
+		self.createStyleNode = function (css, id) {
 
 			// Find head
 			var head = self.doc.head || self.doc.getElementsByTagName('head')[0];
@@ -58,7 +65,9 @@
 
 				// Prepare style tag
 				styleNode.type = 'text/css';
-				styleNode.id = self.styleNodeId;
+				if (id) {
+					styleNode.id = id;
+				}
 
 				// Insert CSS
 				if (styleNode.styleSheet) {
@@ -74,9 +83,11 @@
 
 		};
 
-		self.removeStyleNode = function () {
-			var node = self.doc.querySelector('#' + self.styleNodeId);
-			node.parentNode.removeChild(node);
+		self.removeNode = function (id) {
+			var node = self.doc.querySelector('#' + id);
+			if (node) {
+				node.parentNode.removeChild(node);
+			}
 		};
 
 
@@ -142,21 +153,12 @@
 
 		// This is the mouseOver() function
 		self.mouseOver = function (event) {
-
-			// Set the cursor to 'move' while hovering an element you can reposition
-			// event.target.style.cursor = 'move';
-
-			// Add a green box-shadow to show what container your hovering on
-			// event.target.style.boxShadow = 'inset lime 0 0 1px, lime 0 0 1px';
-
+			event.target.setAttribute(self.targetAttributeName, self.targetAttributeName);
 		}
 
 		// This is the mouseOut() function
 		self.mouseOut = function (event) {
-
-			// Remove the move cursor and green box-shadow
-			// event.target.style.cursor = event.target.style.boxShadow = '';
-
+			event.target.removeAttribute(self.targetAttributeName);
 		}
 
 
@@ -169,8 +171,13 @@
 
 
 
-		// Set up all bindings
-		self.bindListeners = function () {
+		// Listen for toggle button
+		self.bindBaseListeners = function () {
+			self.doc.addEventListener('keydown', self.toggleButtonCallback);
+		};
+
+		// Set up all mouse bindings
+		self.bindActiveListeners = function () {
 
 			// Disallow clicks
 			self.doc.addEventListener('click', self.preventDefaultCallback, true);
@@ -193,9 +200,6 @@
 			// On mouseover, run the out() function
 			self.doc.addEventListener('mouseout', self.mouseOut);
 
-			// Listen for escape button
-			self.doc.addEventListener('keydown', self.cancelButtonCallback);
-
 			return self;
 
 		};
@@ -203,16 +207,13 @@
 
 
 		// Press escape to cancel
-		self.cancelButtonCallback = function (event) {
+		self.toggleButtonCallback = function (event) {
 			event = event || window.event;
 			var code = event.keyCode || event.which;
 
 			// Check for escape key
-			if (code == 27) {
-
-				// Run the actual teardown logic
-				self.tearDown();
-
+			if (code == self.toggleButtonKeyCode) {
+				self.toggle();
 			}
 
 		};
@@ -220,24 +221,28 @@
 
 
 		// Tear up main bindings
-		self.removeCustomAttributes = function () {
-
+		self.removeBaseAttributes = function () {
 			var baseAttributes = self.doc.querySelector('[' + self.baseAttributeName + ']');
 			if (baseAttributes) {
 				baseAttributes.removeAttribute(self.baseAttributeName);
 			}
+		};
 
+		self.removeActiveAttributes = function () {
 			var draggingAttributes = self.doc.querySelector('[' + self.draggingAttributeName + ']');
 			if (draggingAttributes) {
 				draggingAttributes.removeAttribute(self.draggingAttributeName);
 			}
-
 		};
 
 
 
-		// Tear up main bindings
-		self.removeEventListeners = function () {
+		// Tear up bindings
+		self.removeBaseListeners = function () {
+			self.doc.removeEventListener('keydown', self.toggleButtonCallback);
+		};
+
+		self.removeActiveListeners = function () {
 			self.doc.removeEventListener('click', self.preventDefaultCallback, true);
 			self.doc.removeEventListener('mousedown', self.grabStart);
 			self.doc.removeEventListener('touchstart', self.grabStart);
@@ -247,25 +252,62 @@
 			self.doc.removeEventListener('touchend', self.grabRelease);
 			self.doc.removeEventListener('mouseover', self.mouseOver);
 			self.doc.removeEventListener('mouseout', self.mouseOut);
-			self.doc.removeEventListener('keydown', self.cancelButtonCallback);
 		};
 
 
 
-		// Bind all
+		// Life cycle
+
+		// Basic setup
+		self.init = function () {
+			self.isInitialized = true;
+			self.createStyleNode(self.getBaseCss(), self.baseStyleNodeId);
+			self.bindBaseListeners();
+			return self;
+		};
+
+		// Toggle between active mode and rest mode
+		self.toggle = function () {
+			return self.isActive ? self.stop() : self.start();
+		};
+
+		// Activate mode where user can actually grab and move elements that also get highlighted
 		self.start = function () {
-			self.createStyleNode(self.getCss());
-			self.bindListeners();
+
+			if (!self.isInitialized) {
+				self.init();
+			}
+
+			self.isActive = true;
+			self.createStyleNode(self.getActiveCss(), self.activeStyleNodeId);
+			self.bindActiveListeners();
+			return self;
 		};
 
-		// Return to normal mode
-		self.tearDown = function () {
-			self.removeEventListeners();
-			self.removeCustomAttributes();
-			self.removeStyleNode();
+		// Stop all Dragon behavior except toggle key binding, leaving elements where they were moved
+		self.stop = function () {
+			self.isActive = false;
+
+			self.removeActiveListeners();
+			self.removeActiveAttributes();
+			self.removeNode(self.activeStyleNodeId);
+
+			return self;
 		};
 
+		// Remove all traces of Dragon
+		self.kill = function () {
 
+			if (self.isActive) {
+				self.stop();
+			}
+
+			self.removeBaseListeners();
+			self.removeBaseAttributes();
+			self.removeNode(self.baseStyleNodeId);
+
+			return self;
+		};
 
 	};
 
@@ -273,6 +315,7 @@
 
 	// Startup process
 	var dragonInstance = new Dragon(root.document);
+	dragonInstance.init();
 	dragonInstance.start();
 
 	// Export for debug
