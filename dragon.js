@@ -14,8 +14,8 @@
 		// Some configuration
 		self.toggleKeyCode = 27; // Esc
 		self.axisModifierKeyCode = 16; // Shift
-		self.outlineColor = 'rgba(0, 255, 0, 0.4)';
-		self.outlineHoverColor = 'rgba(0, 255, 0, 0.8)';
+		self.outlineColor = 'rgba(0, 255, 0, 0.75)';
+		self.outlineHoverColor = 'rgba(0, 255, 0, 0.95)';
 
 		// Name stuff for use in HTML
 		self.prefix = 'dragon-' + (Math.random().toString(36).substr(2, 9)); // Random UID to prefix stuff with
