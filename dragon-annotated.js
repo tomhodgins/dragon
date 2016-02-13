@@ -1,94 +1,122 @@
-// Let's create some variables we can use later. Since they will all equal nothing right now, we can say they are all equal to zero in one shot.
-var grab=startX=startY=oldTop=oldLeft=0;
 
-// When you click, prevent the default behaviour for that event
-document.addEventListener('click',function(e){e.preventDefault()},true);
+var Dragon = function () {
 
-// On mousedown or touchstart, run the pick() function
-document.addEventListener('mousedown',pick);
-document.addEventListener('touchstart',pick);
+	// Create some variables we can use later
+	var grab = startX = startY = oldTop = oldLeft = 0;
 
-// This is the pick function
-function pick(e){
+	// This is the pick function
+	self.pick = function (event) {
 
-// Prevent the default action
-  e.preventDefault();
+		// Prevent the default action
+		event.preventDefault();
 
-// If the element being clicked/tapped isn't the body or HTML element, do the following
-  if (e.target!==document.documentElement && e.target!==document.body){
+		// If the element being clicked/tapped isn't the body or HTML element, do the following
+		if (event.target !== document.documentElement && event.target !== document.body) {
 
-// Set 'grab' to the time right now
-    grab=Date.now();
+			// Set 'grab' to the time right now
+			grab=Date.now();
 
-// Add a 'data-drag' attribute to the picked element and assign the time they started grabbing it
-    e.target.setAttribute('data-drag',grab);
+			// Add a 'data-drag' attribute to the picked element and assign the time they started grabbing it
+			event.target.setAttribute('data-drag',grab);
 
-// Add `position: relative;` to the picked element
-    e.target.style.position='relative';
+			// Add `position: relative;` to the picked element
+			event.target.style.position='relative';
 
-// Remember the original `top: ;` and `left: ;` values, or if they aren't set yet go with 0 instead
-    oldTop=e.target.style.top.split('px')[0]||0;
-    oldLeft=e.target.style.left.split('px')[0]||0;
+			// Remember the original `top: ;` and `left: ;` values, or if they aren't set yet go with 0 instead
+			oldTop=event.target.style.top.split('px')[0]||0;
+			oldLeft=event.target.style.left.split('px')[0]||0;
 
-// That's all we do for the element when we start clicking or tapping
-  }
+		}
 
-// Let's remember the start x and y coordinates of the cursor when starting a click or tap
-  startX=e.clientX||e.touches[0].clientX;
-  startY=e.clientY||e.touches[0].clientY;
-}
+		// Let's remember the start x and y coordinates of the cursor when starting a click or tap
+		startX=e.clientX||e.touches[0].clientX;
+		startY=e.clientY||e.touches[0].clientY;
 
-// All the time you move the mouse or drag your finger, run the function drag()
-document.addEventListener('mousemove',drag);
-document.addEventListener('touchmove',drag);
+	}
 
-// This is the drag function
-function drag(e){
+	// This is the drag function
+	self.drag = function (event) {
 
-// If grab isn't empty, there's currently an object being dragged, do this
-  if (grab!==''){
+		// If grab isn't empty, there's currently an object being dragged, do this
+		if (grab !== '') {
 
-// Let's find the element on the page whose data-drag="" value matches the value of grab right now
-    var element=document.querySelector('[data-drag="'+grab+'"]');
+			// Let's find the element on the page whose data-drag="" value matches the value of grab right now
+			var element = document.querySelector('[data-drag="' + grab + '"]');
 
-// And to that element, let the new value of `top: ;` be equal to the old top position, plus the difference between the original top position and the current cursor position
-    element.style.top=parseInt(oldTop)+parseInt((e.clientY||e.touches[0].clientY)-startY)+'px';
+			// And to that element, let the new value of `top: ;` be equal to the old top position, plus the difference between the original top position and the current cursor position
+			element.style.top = parseInt(oldTop) + parseInt((e.clientY||e.touches[0].clientY)-startY) + 'px';
 
-// And let the new value of `left: ;` be equal to the old left position, plus the difference between the original left position and the current cursor position
-    element.style.left=parseInt(oldLeft)+parseInt((e.clientX||e.touches[0].clientX)-startX)+'px';
+			// And let the new value of `left: ;` be equal to the old left position, plus the difference between the original left position and the current cursor position
+			element.style.left = parseInt(oldLeft) + parseInt((e.clientX||e.touches[0].clientX)-startX) + 'px';
 
-// That's all we do for dragging elements
-  }
-}
+		}
 
-// On mouseup or touchend, run the release() function
-document.addEventListener('mouseup',release);
-document.addEventListener('touchend',release);
+	}
 
-// The release function empties grab, forgetting which element has been picked.
-function release(e){
-  grab='';
-}
+	// The grabRelease function empties grab, forgetting which element has been picked.
+	self.grabRelease = function (event) {
+		grab = '';
+	}
 
-// On mouseover, run the over() function
-document.addEventListener('mouseover',over);
+	// This is the mouseOver() function
+	self.mouseOver = function (event) {
 
-// This is the over() function
-function over(e){
+		// Set the cursor to 'move' wihle hovering an element you can reposition
+		e.target.style.cursor = 'move';
 
-// Set the cursor to 'move' wihle hovering an element you can reposition
-  e.target.style.cursor='move'
+		// Add a green box-shadow to show what container your hovering on
+		e.target.style.boxShadow = 'inset lime 0 0 1px, lime 0 0 1px';
 
-// Add a green box-shadow to show what container your hovering on
-  e.target.style.boxShadow='inset lime 0 0 1px, lime 0 0 1px'
-}
+	}
 
-// On mouseover, run the out() function
-document.addEventListener('mouseout',out);
+	// This is the mouseOut() function
+	self.mouseOut = function (event) {
 
-// This is the out() function
-function out(e){
+		// Remove the move cursor and green box-shadow
+		e.target.style.cursor = e.target.style.boxShadow = '';
 
-  // Remove the move cursor and green box-shadow
-  e.target.style.cursor=e.target.style.boxShadow=''
-}
+	}
+
+
+
+	// Generic prevent default behaviour for event callbacks
+	self.preventDefaultCallback = function (event) {
+		e.preventDefault();
+	};
+
+
+
+	// Set up all bindings
+	self.bind = function (doc) {
+
+		// Disallow clicks
+		doc.addEventListener('click', self.preventDefaultCallback, true);
+
+		// On mousedown or touchstart, run the pick() function
+		doc.addEventListener('mousedown', self.pick);
+		doc.addEventListener('touchstart', self.pick);
+
+		// All the time you move the mouse or drag your finger, run the function drag()
+		doc.addEventListener('mousemove', self.drag);
+		doc.addEventListener('touchmove', self.drag);
+
+		// On mouseup or touchend, run the grabRelease() function
+		doc.addEventListener('mouseup', self.grabRelease);
+		doc.addEventListener('touchend', self.grabRelease);
+
+		// On mouseover, run the mouseOver() function
+		doc.addEventListener('mouseover', self.mouseOver);
+
+		// On mouseover, run the out() function
+		doc.addEventListener('mouseout', self.mouseOut);
+
+		return self;
+	}
+
+};
+
+
+
+// Startup process
+var DragonInstance = new DragonMain();
+dragonInstance.bind(document);
