@@ -26,13 +26,14 @@
 		self.draggingAttributeName = 'data-' + self.prefix + '-' + 'dragging';
 
 		// Create some variables we can use later
-		self.limitDragDirection = false;
+		self.blockDragDirectionOf = false;
+		self.modifierKeyPressed = false;
+
+		self.grab = 0;
 		self.oldTop = 0;
 		self.oldLeft = 0;
 		self.startX = 0;
 		self.startY = 0;
-		self.grab = 0;
-		self.modifierKeyPressed = false;
 
 
 
@@ -146,42 +147,37 @@
 				var element = self.doc.querySelector('[' + self.baseAttributeName + '="' + self.grab + '"]');
 				if (element && element.style) {
 
-					// Calculate the diffs
-					var axisDiffY = parseInt((event.clientY || event.touches[0].clientY) - self.startY);
-					var axisDiffX = parseInt((event.clientX || event.touches[0].clientX) - self.startX);
+					// Calculate the difference in cursor position compared to the grab origin point
+					var diffX = parseInt((event.clientX || event.touches[0].clientX) - self.startX);
+					var diffY = parseInt((event.clientY || event.touches[0].clientY) - self.startY);
 
-					// Unless the drag direction has already been established...
-					if (!self.limitDragDirection) {
+					// Support for shift key
+					if (self.modifierKeyPressed && event.pageX && event.pageY) {
 
-						// Check for modifier code
-						if (self.modifierKeyPressed) {
-
-							// Establish drag direction (prefer X)
-							if (axisDiffY > axisDiffX) {
-								self.limitDragDirection = 'y';
-							} else {
-								self.limitDragDirection = 'x';
-							}
-
+						// Establish drag direction (downplay Y value to slightly prefer X)
+						if ((0.75 * Math.abs(diffY)) > Math.abs(diffX)) {
+							self.blockDragDirectionOf = 'x';
+						} else {
+							self.blockDragDirectionOf = 'y';
 						}
 
 					}
 
-					// Unless this axis is blocked...
-					if (self.limitDragDirection != 'y') {
-
-						// Adjust the vertical position value based on the difference to last XY position of the cursor
-						element.style.top = parseInt(self.oldTop) + axisDiffY + 'px';
-
+					// Calculate the horizontal position based on the difference to original value
+					var newX = parseInt(self.oldLeft) + diffX;
+					if (self.blockDragDirectionOf == 'x') {
+						newX = self.oldLeft;
 					}
 
-					// Unless this axis is blocked...
-					if (self.limitDragDirection != 'x') {
-
-						// Adjust the horizontal position value based on the difference to last XY position of the cursor
-						element.style.left = parseInt(self.oldLeft) + axisDiffX + 'px';
-
+					// Adjust the vertical position based on the difference to original value
+					var newY = parseInt(self.oldTop) + diffY;
+					if (self.blockDragDirectionOf == 'y') {
+						newY = self.oldTop;
 					}
+
+					// Adjust the position values
+					element.style.left = newX + 'px';
+					element.style.top = newY + 'px';
 
 				}
 
@@ -191,7 +187,11 @@
 		// The grabRelease function empties grab, forgetting which element has been picked.
 		self.grabRelease = function (event) {
 			self.grab = '';
-			self.limitDragDirection = false;
+			self.blockDragDirectionOf = false;
+
+			self.oldTop = 0;
+			self.oldLeft = 0;
+
 			event.target.removeAttribute(self.draggingAttributeName);
 		};
 
