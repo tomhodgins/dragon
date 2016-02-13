@@ -12,7 +12,8 @@
 		self.isActive = false;
 
 		// Some configuration
-		self.toggleButtonKeyCode = 27; // Esc
+		self.toggleKeyCode = 27; // Esc
+		self.axisModifierKeyCode = 16; // Shift
 		self.outlineColor = 'rgba(0, 255, 0, 0.4)';
 		self.outlineHoverColor = 'rgba(0, 255, 0, 0.8)';
 
@@ -25,19 +26,23 @@
 		self.draggingAttributeName = 'data-' + self.prefix + '-' + 'dragging';
 
 		// Create some variables we can use later
+		self.limitDragDirection = false;
 		self.oldTop = 0;
 		self.oldLeft = 0;
 		self.startX = 0;
 		self.startY = 0;
 		self.grab = 0;
+		self.modifierKeyPressed = false;
 
 
 
+		// CSS code that will be inserted as stylesheet nodes
 		self.getBaseCss = function () {
 			return '[' + self.baseAttributeName + '] {' +
 					'position: relative !important;' +
 				'}';
 		};
+
 		self.getActiveCss = function () {
 			return '[' + self.targetAttributeName + '] {' +
 					'cursor: -webkit-grab !important;' +
@@ -92,6 +97,18 @@
 
 
 
+		// This is the mouseOver() function
+		self.mouseOver = function (event) {
+			event.target.setAttribute(self.targetAttributeName, self.targetAttributeName);
+		};
+
+		// This is the mouseOut() function
+		self.mouseOut = function (event) {
+			event.target.removeAttribute(self.targetAttributeName);
+		};
+
+
+
 		// This is run when the user selects an element for dragging
 		self.grabStart = function (event) {
 			event.preventDefault();
@@ -108,9 +125,6 @@
 				// Add a Dragon attribute to the picked element and assign the time they started grabbing it
 				event.target.setAttribute(self.baseAttributeName, self.grab);
 
-				// Add `position: relative;` to the picked element
-				// event.target.style.position = 'relative';
-
 				// Remember the original `top: ;` and `left: ;` values, or if they aren't set yet go with 0 instead
 				self.oldTop = event.target.style.top.split('px')[0] || 0;
 				self.oldLeft = event.target.style.left.split('px')[0] || 0;
@@ -121,45 +135,65 @@
 			self.startX = event.clientX || event.touches[0].clientX;
 			self.startY = event.clientY || event.touches[0].clientY;
 
-		}
+		};
 
 		// This is run for every cursor movement or touch screen drag
+		// If grab isn't empty, there's currently an object being dragged, do this
 		self.drag = function (event) {
-
-			// If grab isn't empty, there's currently an object being dragged, do this
 			if (self.grab !== '') {
 
 				// Let's find the element on the page whose Dragon value matches the value of grab right now
 				var element = self.doc.querySelector('[' + self.baseAttributeName + '="' + self.grab + '"]');
 				if (element && element.style) {
 
-					// Adjust the vertical position value based on the difference to last XY position of the cursor
-					element.style.top = parseInt(self.oldTop) + parseInt((event.clientY || event.touches[0].clientY) - self.startY) + 'px';
+					// Calculate the diffs
+					var axisDiffY = parseInt((event.clientY || event.touches[0].clientY) - self.startY);
+					var axisDiffX = parseInt((event.clientX || event.touches[0].clientX) - self.startX);
 
-					// Adjust the horizontal position value based on the difference to last XY position of the cursor
-					element.style.left = parseInt(self.oldLeft) + parseInt((event.clientX || event.touches[0].clientX) - self.startX) + 'px';
+					// Unless the drag direction has already been established...
+					if (!self.limitDragDirection) {
+
+						// Check for modifier code
+						if (self.modifierKeyPressed) {
+
+							// Establish drag direction (prefer X)
+							if (axisDiffY > axisDiffX) {
+								self.limitDragDirection = 'y';
+							} else {
+								self.limitDragDirection = 'x';
+							}
+
+						}
+
+					}
+
+					// Unless this axis is blocked...
+					if (self.limitDragDirection != 'y') {
+
+						// Adjust the vertical position value based on the difference to last XY position of the cursor
+						element.style.top = parseInt(self.oldTop) + axisDiffY + 'px';
+
+					}
+
+					// Unless this axis is blocked...
+					if (self.limitDragDirection != 'x') {
+
+						// Adjust the horizontal position value based on the difference to last XY position of the cursor
+						element.style.left = parseInt(self.oldLeft) + axisDiffX + 'px';
+
+					}
 
 				}
 
 			}
-
-		}
+		};
 
 		// The grabRelease function empties grab, forgetting which element has been picked.
 		self.grabRelease = function (event) {
 			self.grab = '';
+			self.limitDragDirection = false;
 			event.target.removeAttribute(self.draggingAttributeName);
-		}
-
-		// This is the mouseOver() function
-		self.mouseOver = function (event) {
-			event.target.setAttribute(self.targetAttributeName, self.targetAttributeName);
-		}
-
-		// This is the mouseOut() function
-		self.mouseOut = function (event) {
-			event.target.removeAttribute(self.targetAttributeName);
-		}
+		};
 
 
 
@@ -178,6 +212,10 @@
 
 		// Set up all mouse bindings
 		self.bindActiveListeners = function () {
+
+			// Listen for modifier key presses
+			self.doc.addEventListener('keydown', self.modifierCallbackOn);
+			self.doc.addEventListener('keyup', self.modifierCallbackOff);
 
 			// Disallow clicks
 			self.doc.addEventListener('click', self.preventDefaultCallback, true);
@@ -206,16 +244,31 @@
 
 
 
-		// Press escape to cancel
-		self.toggleButtonCallback = function (event) {
+		// Press escape to toggle active mode on and off
+		self.getKeyCode = function (event) {
 			event = event || window.event;
-			var code = event.keyCode || event.which;
+			return event.keyCode || event.which;
+		};
 
-			// Check for escape key
-			if (code == self.toggleButtonKeyCode) {
+		// Check for escape key
+		self.toggleButtonCallback = function (event) {
+			if (self.getKeyCode(event) == self.toggleKeyCode) {
 				self.toggle();
 			}
+		};
 
+		// Press shift to limit axis
+		self.modifierCallbackOn = function (event) {
+			if (self.getKeyCode(event) == self.axisModifierKeyCode) {
+				self.modifierKeyPressed = true;
+			}
+		};
+
+		// Release shift to stop limiting axis
+		self.modifierCallbackOff = function (event) {
+			if (self.getKeyCode(event) == self.axisModifierKeyCode) {
+				self.modifierKeyPressed = false;
+			}
 		};
 
 
