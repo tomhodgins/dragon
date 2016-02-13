@@ -268,6 +268,7 @@
 		self.modifierCallbackOff = function (event) {
 			if (self.getKeyCode(event) == self.axisModifierKeyCode) {
 				self.modifierKeyPressed = false;
+				self.blockDragDirectionOf = false;
 			}
 		};
 
