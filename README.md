@@ -8,7 +8,7 @@
 
 You can test the functionality with demo content on `index.html`, where you will also find the ‘pretty’ source code for the bookmarklet.
 
-Demo at http://staticresource.com/dragon.html
+Demo at http://staticresource.com/dragon
 
 To use this on other websites you have two options: run it as JavaScript on the page, or create a bookmarklet.
 
