@@ -91,8 +91,15 @@
   <p><img class=float-none src=http://staticresource.com/prestonIcon.jpg></p>
   <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
   <script>
-    var grab=startX=startY=oldTop=oldLeft=0;
+    var grab=startX=startY=oldTop=oldLeft=hoverElement=0;
     document.addEventListener('click',function(e){e.preventDefault()},true);
+    document.addEventListener('keydown',function(e){if(e.which==46||e.keyCode==46)hide();}, false);
+    function hide(){
+      if (hoverElement!==document.documentElement && hoverElement!==document.body){
+        hoverElement.style.opacity = 0;
+        hoverElement.style.filter = "alpha(opacity=0)";
+      }
+    }
     document.addEventListener('mousedown',pick);
     document.addEventListener('touchstart',pick);
     function pick(e){
@@ -123,12 +130,14 @@
     }
     document.addEventListener('mouseover',over);
     function over(e){
+	  hoverElement = e.target;
       e.target.style.cursor='move'
       e.target.style.boxShadow='inset lime 0 0 1px, lime 0 0 1px'
     }
     document.addEventListener('mouseout',out);
     function out(e){
       e.target.style.cursor=e.target.style.boxShadow=''
+	   hoverElement = 0;
     }
   </script>
 </body>
