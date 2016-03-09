@@ -1,8 +1,27 @@
 // Let's create some variables we can use later. Since they will all equal nothing right now, we can say they are all equal to zero in one shot.
-var grab=startX=startY=oldTop=oldLeft=0;
+var grab=startX=startY=oldTop=oldLeft=hoverElement=0;
 
 // When you click, prevent the default behaviour for that event
 document.addEventListener('click',function(e){e.preventDefault()},true);
+
+// Set key handler for hide event; 46 = delete key
+document.addEventListener('keydown',function(e){if(e.which == 46 || e.keyCode == 46)hide();}, false);
+
+// This is the hide function
+function hide(){
+
+// If the element being hovered isn't the body or HTML element, do the following
+  if (hoverElement!==document.documentElement && hoverElement!==document.body){
+// Most of the browsers use this line
+    hoverElement.style.opacity = 0;
+
+// Set opacity for Internet Explorer
+    hoverElement.style.filter = "alpha(opacity=0)";
+
+// That's all we do for hiding an element
+  }
+
+}
 
 // On mousedown or touchstart, run the pick() function
 document.addEventListener('mousedown',pick);
@@ -76,11 +95,14 @@ document.addEventListener('mouseover',over);
 // This is the over() function
 function over(e){
 
+// Store what element we are moving so we know what element to hide when user presses delete
+  hoverElement = e.target;
+
 // Set the cursor to 'move' wihle hovering an element you can reposition
-  e.target.style.cursor='move'
+  e.target.style.cursor='move';
 
 // Add a green box-shadow to show what container your hovering on
-  e.target.style.boxShadow='inset lime 0 0 1px, lime 0 0 1px'
+  e.target.style.boxShadow='inset lime 0 0 1px, lime 0 0 1px';
 }
 
 // On mouseover, run the out() function
@@ -90,5 +112,9 @@ document.addEventListener('mouseout',out);
 function out(e){
 
   // Remove the move cursor and green box-shadow
-  e.target.style.cursor=e.target.style.boxShadow=''
+  e.target.style.cursor=e.target.style.boxShadow='';
+  
+  // Remove the hovered element
+  hoverElement = 0;
+
 }
